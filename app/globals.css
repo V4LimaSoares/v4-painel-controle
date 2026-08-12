@@ -66,16 +66,22 @@ textarea {
     var(--surface-strong);
   color: #fff;
   padding: 18px 16px;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  display: flex;
+  flex-direction: column;
   gap: 16px;
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  z-index: 20;
+  width: 284px;
   height: 100dvh;
   max-height: 100dvh;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 12px 0 28px rgba(16, 16, 16, 0.08);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
 }
 
 .eyebrow {
@@ -125,10 +131,9 @@ nav {
   align-content: start;
   gap: 6px;
   min-height: 0;
-  overflow-y: auto;
+  overflow: visible;
   padding: 2px 4px 2px 0;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+  flex: 0 0 auto;
 }
 
 nav button {
@@ -209,7 +214,7 @@ nav button:hover {
 }
 
 .status {
-  margin-top: 0;
+  margin-top: auto;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 8px;
   padding: 12px;
@@ -252,6 +257,7 @@ nav button:hover {
 }
 
 .content {
+  grid-column: 2;
   padding: 24px;
   display: grid;
   gap: 16px;
@@ -2568,6 +2574,7 @@ td:last-child .row-actions {
 
   .sidebar {
     position: static;
+    width: auto;
     height: auto;
     max-height: none;
     display: grid;
@@ -2577,6 +2584,10 @@ td:last-child .row-actions {
     overflow: visible;
     border-right: 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .content {
+    grid-column: auto;
   }
 
   .brand-lockup {
