@@ -66,12 +66,13 @@ textarea {
     var(--surface-strong);
   color: #fff;
   padding: 18px 16px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 16px;
   position: sticky;
   top: 0;
-  height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 12px 0 28px rgba(16, 16, 16, 0.08);
   overflow: hidden;
@@ -127,7 +128,9 @@ textarea {
 
 nav {
   display: grid;
+  align-content: start;
   gap: 6px;
+  min-height: 0;
   overflow-y: auto;
   padding: 2px 4px 2px 0;
   scrollbar-width: thin;
@@ -212,7 +215,7 @@ nav button:hover {
 }
 
 .status {
-  margin-top: auto;
+  margin-top: 0;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 8px;
   padding: 12px;
@@ -2572,6 +2575,9 @@ td:last-child .row-actions {
   .sidebar {
     position: static;
     height: auto;
+    max-height: none;
+    display: grid;
+    grid-template-rows: none;
     padding: 14px;
     gap: 12px;
     overflow: visible;
