@@ -93,6 +93,42 @@ actions tied to the current ChatGPT user. Leave public content anonymous.
 - `npm run build`: verify the vinext build output
 - `npm test`: build the starter and verify its rendered loading skeleton
 - `npm run db:generate`: generate Drizzle migrations after schema changes
+- `npm run db:push`: apply the current Drizzle schema to the configured Postgres database
+- `npm run db:studio`: open Drizzle Studio for inspecting the configured database
+
+## Postgres
+
+Set `DATABASE_URL` before using the database:
+
+```bash
+DATABASE_URL=postgres://postgres:SENHA_DO_BANCO@HOST_DO_POSTGRES:5432/v4connect
+```
+
+After the Easypanel Postgres service is created, run:
+
+```bash
+npm run db:push
+```
+
+## Easypanel via GitHub
+
+Recommended deployment mode: Dockerfile.
+
+Service settings:
+
+- Repository: GitHub repository for this project
+- Branch: `main`
+- Port: `3000`
+- Build: Dockerfile in repository root
+
+Required environment variable:
+
+```bash
+DATABASE_URL=postgres://v4painelcontrole:SENHA_DO_BANCO@v4connect_v4painelcontrole:5432/v4connect?sslmode=disable
+```
+
+The Postgres tables must already exist before using the panel. The migration is
+available at `drizzle/0000_jittery_lethal_legion.sql`.
 
 ## Learn More
 
