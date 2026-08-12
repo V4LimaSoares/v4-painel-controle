@@ -2083,7 +2083,7 @@ export default function Home() {
     <main className="shell">
       <aside className="sidebar">
         <div className="brand-lockup">
-          <div className="brand-mark">V4</div>
+          <img className="brand-logo" src="/logo-branca.png" alt="V4 Company" />
           <p className="eyebrow">V4 Lima Soares & Co</p>
           <h1>Controle comercial e operacional</h1>
         </div>
