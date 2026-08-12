@@ -90,10 +90,10 @@ textarea {
 .brand-lockup {
   display: grid;
   grid-template-columns: 44px minmax(0, 1fr);
-  gap: 12px;
+  gap: 8px 12px;
   align-items: center;
   min-width: 0;
-  padding: 10px 8px 14px;
+  padding: 10px 8px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -112,18 +112,19 @@ textarea {
 }
 
 .brand-lockup .eyebrow {
-  margin: 0 0 3px;
+  margin: 0;
   color: rgba(255, 255, 255, 0.56);
   font-size: 10px;
 }
 
 .sidebar h1 {
+  grid-column: 1 / -1;
   margin: 0;
   max-width: none;
   color: #fff;
-  font-size: 15px;
-  line-height: 1.15;
-  overflow-wrap: anywhere;
+  font-size: 16px;
+  line-height: 1.18;
+  text-wrap: balance;
 }
 
 nav {
@@ -2684,7 +2685,7 @@ td:last-child .row-actions {
   }
 
   .sidebar h1 {
-    font-size: 14px;
+    font-size: 15px;
   }
 
   nav button {
