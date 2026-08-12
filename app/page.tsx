@@ -2089,17 +2089,18 @@ export default function Home() {
         </div>
         <nav>
           {[
-            ["dashboard", "Dashboard"],
-            ["equipes", "Equipes"],
-            ["clientes", "Clientes"],
-            ["comercial", "Comercial"],
-            ["expansao", "Expansao"],
-            ["comissoes", "Comissoes"],
-            ["fechamento", "Fechamento"],
-            ["regras", "Regras"],
-          ].map(([id, label]) => (
-            <button className={active === id ? "active" : ""} key={id} onClick={() => setActive(id)}>
-              {label}
+            ["dashboard", "Dashboard", "DB"],
+            ["equipes", "Equipes", "EQ"],
+            ["clientes", "Clientes", "CL"],
+            ["comercial", "Comercial", "CO"],
+            ["expansao", "Expansao", "EX"],
+            ["comissoes", "Comissoes", "CM"],
+            ["fechamento", "Fechamento", "FC"],
+            ["regras", "Regras", "RG"],
+          ].map(([id, label, shortLabel]) => (
+            <button className={active === id ? "active" : ""} key={id} onClick={() => setActive(id)} title={label}>
+              <span className="nav-icon">{shortLabel}</span>
+              <span>{label}</span>
             </button>
           ))}
         </nav>
