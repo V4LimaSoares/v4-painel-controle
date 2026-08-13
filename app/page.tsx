@@ -1248,7 +1248,7 @@ export default function Home() {
   const [active, setActive] = useState("dashboard");
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [authStatus, setAuthStatus] = useState<"loading" | "authenticated" | "unauthenticated">("loading");
-  const [loginForm, setLoginForm] = useState({ email: "", accessCode: "" });
+  const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [loginError, setLoginError] = useState("");
   const [accessUsers, setAccessUsers] = useState<AccessUser[]>([]);
   const [accessUserForm, setAccessUserForm] = useState<AccessUser>(emptyAccessUser);
@@ -2261,12 +2261,12 @@ export default function Home() {
             />
           </label>
           <label>
-            <span>Codigo de acesso</span>
+            <span>Senha</span>
             <input
               type="password"
-              placeholder="Codigo liberado pela unidade"
-              value={loginForm.accessCode}
-              onChange={(event) => setLoginForm((current) => ({ ...current, accessCode: event.target.value }))}
+              placeholder="Senha liberada pela unidade"
+              value={loginForm.password}
+              onChange={(event) => setLoginForm((current) => ({ ...current, password: event.target.value }))}
             />
           </label>
           {loginError && <p className="form-error">{loginError}</p>}

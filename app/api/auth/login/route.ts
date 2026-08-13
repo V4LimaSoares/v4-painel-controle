@@ -2,16 +2,16 @@ import { NextResponse } from "next/server";
 import { createSessionToken, getPanelUserByEmail, isV4Email, normalizeEmail, sessionCookieName } from "@/app/auth";
 
 export async function POST(request: Request) {
-  const { email, accessCode } = (await request.json()) as { email?: string; accessCode?: string };
+  const { email, password, accessCode } = (await request.json()) as { email?: string; password?: string; accessCode?: string };
   const normalizedEmail = normalizeEmail(email || "");
 
   if (!isV4Email(normalizedEmail)) {
     return NextResponse.json({ ok: false, error: "Use um e-mail @v4company.com para acessar." }, { status: 403 });
   }
 
-  const expectedCode = process.env.LOGIN_ACCESS_KEY || "";
-  if (expectedCode && accessCode !== expectedCode) {
-    return NextResponse.json({ ok: false, error: "Codigo de acesso invalido." }, { status: 401 });
+  const expectedPassword = process.env.LOGIN_PASSWORD || process.env.LOGIN_ACCESS_KEY || "";
+  if (expectedPassword && (password || accessCode) !== expectedPassword) {
+    return NextResponse.json({ ok: false, error: "Senha invalida." }, { status: 401 });
   }
 
   const user = await getPanelUserByEmail(normalizedEmail);

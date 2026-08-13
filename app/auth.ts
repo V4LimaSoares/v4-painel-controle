@@ -15,12 +15,14 @@ export type PanelUser = {
 };
 
 function authSecret() {
-  return process.env.AUTH_SECRET || process.env.LOGIN_ACCESS_KEY || "v4-panel-dev-secret";
+  return process.env.AUTH_SECRET || process.env.LOGIN_PASSWORD || process.env.LOGIN_ACCESS_KEY || "v4-panel-dev-secret";
 }
 
 function adminEmails() {
   return new Set(
-    (process.env.ADMIN_EMAILS || "")
+    [process.env.SUPER_ADMIN_EMAILS, process.env.ADMIN_EMAILS]
+      .filter(Boolean)
+      .join(",")
       .split(",")
       .map((email) => normalizeEmail(email))
       .filter(Boolean),
