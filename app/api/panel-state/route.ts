@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { asc } from "drizzle-orm";
+import { getPanelUserFromRequest, hasTabAccess, tabForCollection } from "@/app/auth";
 import { getDb } from "@/db";
 import {
   clientProjects,
@@ -57,8 +58,16 @@ function collectionError(error: unknown) {
   return NextResponse.json({ ok: false, error: message }, { status: 500 });
 }
 
-export async function GET() {
+function authError(status = 401) {
+  return NextResponse.json({ ok: false, error: status === 401 ? "Nao autenticado." : "Acesso negado." }, { status });
+}
+
+export async function GET(request: Request) {
   try {
+    const user = await getPanelUserFromRequest(request);
+    if (!user) return authError();
+    if (!user.allowedTabs.length) return authError(403);
+
     const db = getDb();
     const [roleRows, teamRows, squadRows, clientRows, projectRows, expansionRows, commercialRows, dailyRows, goalRows, policyRows] =
       await Promise.all([
@@ -208,6 +217,11 @@ export async function GET() {
 export async function PUT(request: Request) {
   try {
     const { collection, data } = (await request.json()) as { collection: PanelCollection; data: unknown };
+    const user = await getPanelUserFromRequest(request);
+    if (!user) return authError();
+    const requiredTab = tabForCollection(collection);
+    if (requiredTab && !hasTabAccess(user, requiredTab)) return authError(403);
+
     const rows = Array.isArray(data) ? data : [];
     const db = getDb();
 

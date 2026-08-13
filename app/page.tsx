@@ -199,6 +199,45 @@ type PanelState = {
 
 type PanelCollection = keyof PanelState;
 
+type AuthUser = {
+  email: string;
+  nome: string;
+  allowedTabs: string[];
+  isAdmin: boolean;
+};
+
+type AccessUser = {
+  id: string;
+  email: string;
+  nome: string;
+  allowedTabs: string[];
+  isAdmin: boolean;
+  status: string;
+};
+
+const navigationItems = [
+  ["dashboard", "Dashboard", "DB"],
+  ["equipes", "Equipes", "EQ"],
+  ["clientes", "Clientes", "CL"],
+  ["comercial", "Comercial", "CO"],
+  ["expansao", "Expansao", "EX"],
+  ["comissoes", "Comissoes", "CM"],
+  ["fechamento", "Fechamento", "FC"],
+  ["regras", "Regras", "RG"],
+  ["acessos", "Acessos", "AC"],
+] as const;
+
+const permissionTabs = navigationItems.filter(([id]) => id !== "acessos").map(([id]) => id);
+
+const emptyAccessUser: AccessUser = {
+  id: "",
+  email: "",
+  nome: "",
+  allowedTabs: ["dashboard"],
+  isAdmin: false,
+  status: "Ativo",
+};
+
 const currency = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
@@ -1207,6 +1246,13 @@ function mergeTeamWithSeed(current: TeamMember[]) {
 
 export default function Home() {
   const [active, setActive] = useState("dashboard");
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [authStatus, setAuthStatus] = useState<"loading" | "authenticated" | "unauthenticated">("loading");
+  const [loginForm, setLoginForm] = useState({ email: "", accessCode: "" });
+  const [loginError, setLoginError] = useState("");
+  const [accessUsers, setAccessUsers] = useState<AccessUser[]>([]);
+  const [accessUserForm, setAccessUserForm] = useState<AccessUser>(emptyAccessUser);
+  const [accessStatus, setAccessStatus] = useState("");
   const [clientProductTab, setClientProductTab] = useState("Empresas");
   const [commercialView, setCommercialView] = useState("Dashboard");
   const [commercialRegistryTab, setCommercialRegistryTab] = useState("BDR/SDR");
@@ -1264,42 +1310,71 @@ export default function Home() {
   const competenceDate = competenceReferenceDate(selectedCompetence);
   const paymentCompetenceDate = new Date(competenceDate.getFullYear(), competenceDate.getMonth() + 1, policyConfig.paymentDay);
 
+  async function loadPanelState() {
+    try {
+      const response = await fetch("/api/panel-state", { cache: "no-store" });
+      if (!response.ok) throw new Error("API indisponivel");
+      const payload = (await response.json()) as { ok: boolean; data: PanelState };
+      if (!payload.ok) return;
+      const data = payload.data;
+      setPolicyConfig({ ...defaultCommercialPolicy, ...(data.policyConfig ?? {}) });
+      setComercial(data.comercial.map(normalizeCommercialRecord));
+      setCommercialDailyMetrics(data.commercialDailyMetrics);
+      setCommercialMonthlyGoals(data.commercialMonthlyGoals);
+      setTeam(data.team.map(normalizeMember));
+      setSquads(data.squads);
+      setClients(data.clients.map(normalizeClient));
+      setExpansions(data.expansions);
+      const mergedRoles = Array.from(
+        new Set([...(data.roles.length ? data.roles : defaultRoles), ...data.team.map((member) => member.funcao).filter(Boolean)]),
+      ).sort((a, b) => a.localeCompare(b));
+      setRoles(mergedRoles);
+      const currentGoal = data.commercialMonthlyGoals.find((item) => item.referenceMonth === currentCompetence()) || data.commercialMonthlyGoals[0];
+      if (currentGoal) {
+        setMonthlyGoalForm(currentGoal.targets);
+        setGoalSettings({
+          weekdays: currentGoal.weekdays || defaultGoalSettings.weekdays,
+          distributionType: currentGoal.distributionType || defaultGoalSettings.distributionType,
+          ignoreHolidays: Boolean(currentGoal.ignoreHolidays),
+        });
+      }
+      setSyncStatus("Dados carregados do Postgres");
+    } catch {
+      setSyncStatus("Postgres nao disponivel neste ambiente. Painel aberto zerado.");
+    }
+  }
+
+  async function loadAccessUsers(isAllowed = authUser?.isAdmin) {
+    if (!isAllowed) return;
+    try {
+      const response = await fetch("/api/access-users", { cache: "no-store" });
+      if (!response.ok) throw new Error("Falha ao buscar usuarios");
+      const payload = (await response.json()) as { ok: boolean; data: AccessUser[] };
+      if (payload.ok) setAccessUsers(payload.data);
+    } catch {
+      setAccessStatus("Nao foi possivel carregar os acessos.");
+    }
+  }
+
   useEffect(() => {
     let cancelled = false;
-    async function loadPanelState() {
+    async function bootstrapAuth() {
       try {
-        const response = await fetch("/api/panel-state", { cache: "no-store" });
-        if (!response.ok) throw new Error("API indisponivel");
-        const payload = (await response.json()) as { ok: boolean; data: PanelState };
+        const response = await fetch("/api/auth/me", { cache: "no-store" });
+        if (!response.ok) throw new Error("Sem sessao");
+        const payload = (await response.json()) as { ok: boolean; user: AuthUser };
         if (!payload.ok || cancelled) return;
-        const data = payload.data;
-        setPolicyConfig({ ...defaultCommercialPolicy, ...(data.policyConfig ?? {}) });
-        setComercial(data.comercial.map(normalizeCommercialRecord));
-        setCommercialDailyMetrics(data.commercialDailyMetrics);
-        setCommercialMonthlyGoals(data.commercialMonthlyGoals);
-        setTeam(data.team.map(normalizeMember));
-        setSquads(data.squads);
-        setClients(data.clients.map(normalizeClient));
-        setExpansions(data.expansions);
-        const mergedRoles = Array.from(
-          new Set([...(data.roles.length ? data.roles : defaultRoles), ...data.team.map((member) => member.funcao).filter(Boolean)]),
-        ).sort((a, b) => a.localeCompare(b));
-        setRoles(mergedRoles);
-        const currentGoal = data.commercialMonthlyGoals.find((item) => item.referenceMonth === currentCompetence()) || data.commercialMonthlyGoals[0];
-        if (currentGoal) {
-          setMonthlyGoalForm(currentGoal.targets);
-          setGoalSettings({
-            weekdays: currentGoal.weekdays || defaultGoalSettings.weekdays,
-            distributionType: currentGoal.distributionType || defaultGoalSettings.distributionType,
-            ignoreHolidays: Boolean(currentGoal.ignoreHolidays),
-          });
-        }
-        setSyncStatus("Dados carregados do Postgres");
+        setAuthUser(payload.user);
+        setAuthStatus("authenticated");
+        const firstTab = payload.user.allowedTabs[0] || "dashboard";
+        setActive((current) => (payload.user.allowedTabs.includes(current) ? current : firstTab));
+        await loadPanelState();
+        await loadAccessUsers(payload.user.isAdmin);
       } catch {
-        setSyncStatus("Postgres nao disponivel neste ambiente. Painel aberto zerado.");
+        if (!cancelled) setAuthStatus("unauthenticated");
       }
     }
-    loadPanelState();
+    void bootstrapAuth();
     return () => {
       cancelled = true;
     };
@@ -1478,6 +1553,82 @@ export default function Home() {
   const healthyProjectRatio = healthyProjects / totalActiveProjects;
   const operationalAttentionCount = alertProjects + dangerProjects + inactiveEngagementProjects + clientsWithoutSquad;
   const totalPipeline = expansionMrrPipeline + expansionOneTimePipeline;
+  const allowedNavigation = useMemo(
+    () => navigationItems.filter(([id]) => authUser?.allowedTabs.includes(id) || authUser?.isAdmin),
+    [authUser?.allowedTabs, authUser?.isAdmin],
+  );
+
+  async function handleLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLoginError("");
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(loginForm),
+      });
+      const payload = (await response.json()) as { ok: boolean; user?: AuthUser; error?: string };
+      if (!response.ok || !payload.ok || !payload.user) throw new Error(payload.error || "Nao foi possivel entrar.");
+      setAuthUser(payload.user);
+      setAuthStatus("authenticated");
+      setActive(payload.user.allowedTabs[0] || "dashboard");
+      await loadPanelState();
+      await loadAccessUsers(payload.user.isAdmin);
+    } catch (error) {
+      setLoginError(error instanceof Error ? error.message : "Nao foi possivel entrar.");
+    }
+  }
+
+  async function handleLogout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    setAuthUser(null);
+    setAuthStatus("unauthenticated");
+    setComercial([]);
+    setTeam([]);
+    setSquads([]);
+    setClients([]);
+    setExpansions([]);
+  }
+
+  function toggleAccessTab(tab: string) {
+    setAccessUserForm((current) => ({
+      ...current,
+      allowedTabs: current.allowedTabs.includes(tab) ? current.allowedTabs.filter((item) => item !== tab) : [...current.allowedTabs, tab],
+    }));
+  }
+
+  async function saveAccessUser(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setAccessStatus("Salvando acesso...");
+    try {
+      const response = await fetch("/api/access-users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(accessUserForm),
+      });
+      const payload = (await response.json()) as { ok: boolean; error?: string };
+      if (!response.ok || !payload.ok) throw new Error(payload.error || "Falha ao salvar acesso.");
+      setAccessUserForm(emptyAccessUser);
+      setAccessStatus("Acesso salvo.");
+      await loadAccessUsers();
+    } catch (error) {
+      setAccessStatus(error instanceof Error ? error.message : "Falha ao salvar acesso.");
+    }
+  }
+
+  async function deleteAccessUser(user: AccessUser) {
+    const shouldDelete = window.confirm(`Remover acesso de ${user.email}?`);
+    if (!shouldDelete) return;
+    setAccessStatus("Removendo acesso...");
+    try {
+      const response = await fetch(`/api/access-users?email=${encodeURIComponent(user.email)}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("Falha ao remover acesso.");
+      setAccessStatus("Acesso removido.");
+      await loadAccessUsers();
+    } catch {
+      setAccessStatus("Falha ao remover acesso.");
+    }
+  }
 
   async function persistPanelCollection(collection: PanelCollection, data: unknown) {
     try {
@@ -2079,6 +2230,66 @@ export default function Home() {
     localStorage.setItem(commissionStatusKey, JSON.stringify(next));
   }
 
+  if (authStatus === "loading") {
+    return (
+      <main className="login-screen">
+        <section className="login-card">
+          <img className="login-logo" src="/logo-branca.png" alt="V4 Company" />
+          <p className="eyebrow">Painel interno</p>
+          <h1>Carregando acesso...</h1>
+        </section>
+      </main>
+    );
+  }
+
+  if (authStatus === "unauthenticated") {
+    return (
+      <main className="login-screen">
+        <form className="login-card" onSubmit={handleLogin}>
+          <img className="login-logo" src="/logo-branca.png" alt="V4 Company" />
+          <p className="eyebrow">V4 Lima Soares & Co</p>
+          <h1>Entrar no painel</h1>
+          <p className="muted">Acesso restrito a e-mails @v4company.com.</p>
+          <label>
+            <span>E-mail</span>
+            <input
+              type="email"
+              placeholder="nome@v4company.com"
+              value={loginForm.email}
+              onChange={(event) => setLoginForm((current) => ({ ...current, email: event.target.value }))}
+              required
+            />
+          </label>
+          <label>
+            <span>Codigo de acesso</span>
+            <input
+              type="password"
+              placeholder="Codigo liberado pela unidade"
+              value={loginForm.accessCode}
+              onChange={(event) => setLoginForm((current) => ({ ...current, accessCode: event.target.value }))}
+            />
+          </label>
+          {loginError && <p className="form-error">{loginError}</p>}
+          <button className="primary" type="submit">Entrar</button>
+        </form>
+      </main>
+    );
+  }
+
+  if (!allowedNavigation.length) {
+    return (
+      <main className="login-screen">
+        <section className="login-card">
+          <img className="login-logo" src="/logo-branca.png" alt="V4 Company" />
+          <p className="eyebrow">Sem permissao</p>
+          <h1>Acesso ainda nao liberado</h1>
+          <p className="muted">Seu e-mail foi validado, mas nenhuma aba foi liberada para este usuario.</p>
+          <button className="secondary" type="button" onClick={handleLogout}>Sair</button>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="shell">
       <aside className="sidebar">
@@ -2088,22 +2299,19 @@ export default function Home() {
           <h1>Controle comercial e operacional</h1>
         </div>
         <nav>
-          {[
-            ["dashboard", "Dashboard", "DB"],
-            ["equipes", "Equipes", "EQ"],
-            ["clientes", "Clientes", "CL"],
-            ["comercial", "Comercial", "CO"],
-            ["expansao", "Expansao", "EX"],
-            ["comissoes", "Comissoes", "CM"],
-            ["fechamento", "Fechamento", "FC"],
-            ["regras", "Regras", "RG"],
-          ].map(([id, label, shortLabel]) => (
+          {allowedNavigation.map(([id, label, shortLabel]) => (
             <button className={active === id ? "active" : ""} key={id} onClick={() => setActive(id)} title={label}>
               <span className="nav-icon">{shortLabel}</span>
               <span>{label}</span>
             </button>
           ))}
         </nav>
+        <div className="sidebar-user">
+          <span>{authUser?.isAdmin ? "Administrador" : "Usuario"}</span>
+          <strong>{authUser?.nome || authUser?.email}</strong>
+          <small>{authUser?.email}</small>
+          <button type="button" onClick={handleLogout}>Sair</button>
+        </div>
         <div className="status competence-card">
           <label>
             <span>Competencia</span>
@@ -3839,6 +4047,111 @@ export default function Home() {
           </section>
         )}
 
+        {active === "acessos" && authUser?.isAdmin && (
+          <section className="teams-layout">
+            <section className="panel access-panel">
+              <div className="section-toolbar flat-toolbar">
+                <div>
+                  <h3>Acessos do painel</h3>
+                  <p className="muted">Libere quais abas cada e-mail @v4company.com pode visualizar e editar.</p>
+                </div>
+              </div>
+
+              <form className="access-form" onSubmit={saveAccessUser}>
+                <label>
+                  <span>Nome</span>
+                  <input
+                    value={accessUserForm.nome}
+                    onChange={(event) => setAccessUserForm((current) => ({ ...current, nome: event.target.value }))}
+                    placeholder="Nome do usuario"
+                  />
+                </label>
+                <label>
+                  <span>E-mail V4</span>
+                  <input
+                    type="email"
+                    value={accessUserForm.email}
+                    onChange={(event) => setAccessUserForm((current) => ({ ...current, email: event.target.value }))}
+                    placeholder="nome@v4company.com"
+                    required
+                  />
+                </label>
+                <label>
+                  <span>Status</span>
+                  <select
+                    value={accessUserForm.status}
+                    onChange={(event) => setAccessUserForm((current) => ({ ...current, status: event.target.value }))}
+                  >
+                    <option>Ativo</option>
+                    <option>Inativo</option>
+                  </select>
+                </label>
+                <label className="check-card compact-check">
+                  <input
+                    type="checkbox"
+                    checked={accessUserForm.isAdmin}
+                    onChange={(event) => setAccessUserForm((current) => ({ ...current, isAdmin: event.target.checked }))}
+                  />
+                  <span>Administrador</span>
+                </label>
+                <div className="permission-grid">
+                  {permissionTabs.map((tab) => (
+                    <label className="check-card compact-check" key={tab}>
+                      <input
+                        type="checkbox"
+                        checked={accessUserForm.isAdmin || accessUserForm.allowedTabs.includes(tab)}
+                        disabled={accessUserForm.isAdmin}
+                        onChange={() => toggleAccessTab(tab)}
+                      />
+                      <span>{titleFor(tab)}</span>
+                    </label>
+                  ))}
+                </div>
+                <div className="form-actions">
+                  <button className="primary" type="submit">Salvar acesso</button>
+                  <button className="secondary" type="button" onClick={() => setAccessUserForm(emptyAccessUser)}>Limpar</button>
+                  {accessStatus && <span className="muted">{accessStatus}</span>}
+                </div>
+              </form>
+
+              <section className="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Usuario</th>
+                      <th>E-mail</th>
+                      <th>Abas liberadas</th>
+                      <th>Status</th>
+                      <th>Acoes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {!accessUsers.length && (
+                      <tr>
+                        <td colSpan={5} className="empty-cell">Nenhum usuario cadastrado.</td>
+                      </tr>
+                    )}
+                    {accessUsers.map((user) => (
+                      <tr key={user.email}>
+                        <td><strong>{user.nome || "-"}</strong>{user.isAdmin && <span className="role-pill">Admin</span>}</td>
+                        <td>{user.email}</td>
+                        <td>{user.isAdmin ? "Todas as abas" : user.allowedTabs.map(titleFor).join(", ") || "-"}</td>
+                        <td><span className={`status-chip ${user.status === "Ativo" ? "good" : "neutral"}`}>{user.status}</span></td>
+                        <td>
+                          <div className="row-actions">
+                            <button className="icon-button" type="button" title="Editar acesso" onClick={() => setAccessUserForm(user)}>✎</button>
+                            <button className="icon-button danger" type="button" title="Excluir acesso" onClick={() => deleteAccessUser(user)}>🗑</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+            </section>
+          </section>
+        )}
+
         {active === "regras" && (
           <section className="teams-layout">
             <section className="panel rules-panel">
@@ -3877,6 +4190,7 @@ function titleFor(active: string) {
     comissoes: "Conferencia de comissoes",
     fechamento: "Fechamento mensal",
     regras: "Regras do sistema",
+    acessos: "Acessos",
   };
   return map[active] ?? "Painel";
 }

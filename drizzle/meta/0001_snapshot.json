@@ -1,0 +1,1235 @@
+{
+  "id": "ed2ebea0-f078-437c-9064-b8c9f4391ac7",
+  "prevId": "3d28ef4b-c67e-40bd-b5a6-51f2358193e7",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.app_users": {
+      "name": "app_users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(64)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(180)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "varchar(160)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "allowed_tabs": {
+          "name": "allowed_tabs",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "is_admin": {
+          "name": "is_admin",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "status": {
+          "name": "status",
+          "type": "app_user_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Ativo'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "app_users_email_idx": {
+          "name": "app_users_email_idx",
+          "columns": [
+            {
+              "expression": "email",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.client_projects": {
+      "name": "client_projects",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(64)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "client_id": {
+          "name": "client_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "varchar(220)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "produto": {
+          "name": "produto",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "squad": {
+          "name": "squad",
+          "type": "varchar(140)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "saude": {
+          "name": "saude",
+          "type": "project_health",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Saudavel'"
+        },
+        "engajamento": {
+          "name": "engajamento",
+          "type": "project_engagement",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Neutro'"
+        },
+        "mrr": {
+          "name": "mrr",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "valor_unico": {
+          "name": "valor_unico",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "data_inicio": {
+          "name": "data_inicio",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "meses_contrato": {
+          "name": "meses_contrato",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "data_renovacao": {
+          "name": "data_renovacao",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_entrega": {
+          "name": "data_entrega",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "project_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Ativo'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "client_projects_client_id_clients_id_fk": {
+          "name": "client_projects_client_id_clients_id_fk",
+          "tableFrom": "client_projects",
+          "tableTo": "clients",
+          "columnsFrom": [
+            "client_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.clients": {
+      "name": "clients",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(64)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "varchar(220)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "razao_social": {
+          "name": "razao_social",
+          "type": "varchar(240)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "cnpj": {
+          "name": "cnpj",
+          "type": "varchar(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "nome_fantasia": {
+          "name": "nome_fantasia",
+          "type": "varchar(220)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "segmento": {
+          "name": "segmento",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "responsavel": {
+          "name": "responsavel",
+          "type": "varchar(160)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(180)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "telefone": {
+          "name": "telefone",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "status": {
+          "name": "status",
+          "type": "client_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Ativo'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.commercial_daily_metrics": {
+      "name": "commercial_daily_metrics",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(64)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "date": {
+          "name": "date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mql": {
+          "name": "mql",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "sql": {
+          "name": "sql",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "sal": {
+          "name": "sal",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "logo": {
+          "name": "logo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "dialer_minutes": {
+          "name": "dialer_minutes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "follow_ups": {
+          "name": "follow_ups",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "observations": {
+          "name": "observations",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "varchar(160)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "commercial_daily_metrics_date_idx": {
+          "name": "commercial_daily_metrics_date_idx",
+          "columns": [
+            {
+              "expression": "date",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.commercial_monthly_goals": {
+      "name": "commercial_monthly_goals",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(64)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "mes": {
+          "name": "mes",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mql": {
+          "name": "mql",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "sql": {
+          "name": "sql",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "sal": {
+          "name": "sal",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "logo": {
+          "name": "logo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "settings": {
+          "name": "settings",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "commercial_monthly_goals_mes_idx": {
+          "name": "commercial_monthly_goals_mes_idx",
+          "columns": [
+            {
+              "expression": "mes",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.commercial_policy": {
+      "name": "commercial_policy",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(64)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "bdr_max_recurring_rate": {
+          "name": "bdr_max_recurring_rate",
+          "type": "numeric(8, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.12'"
+        },
+        "bdr_max_one_time_rate": {
+          "name": "bdr_max_one_time_rate",
+          "type": "numeric(8, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.10'"
+        },
+        "closer_max_recurring_rate": {
+          "name": "closer_max_recurring_rate",
+          "type": "numeric(8, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.20'"
+        },
+        "closer_max_one_time_rate": {
+          "name": "closer_max_one_time_rate",
+          "type": "numeric(8, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.10'"
+        },
+        "bdr_sale_meeting_bonus": {
+          "name": "bdr_sale_meeting_bonus",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'50'"
+        },
+        "bdr_payment_on_call_bonus": {
+          "name": "bdr_payment_on_call_bonus",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'100'"
+        },
+        "bdr_activated_contract_bonus": {
+          "name": "bdr_activated_contract_bonus",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'50'"
+        },
+        "closer_payment_on_call_bonus": {
+          "name": "closer_payment_on_call_bonus",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'100'"
+        },
+        "closer_activated_contract_bonus": {
+          "name": "closer_activated_contract_bonus",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'80'"
+        },
+        "expansion_pool_rate": {
+          "name": "expansion_pool_rate",
+          "type": "numeric(8, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.07'"
+        },
+        "expansion_leader_share": {
+          "name": "expansion_leader_share",
+          "type": "numeric(8, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.30'"
+        },
+        "expansion_coordinator_share": {
+          "name": "expansion_coordinator_share",
+          "type": "numeric(8, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.10'"
+        },
+        "payment_day": {
+          "name": "payment_day",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 10
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.commercial_records": {
+      "name": "commercial_records",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(64)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "mes": {
+          "name": "mes",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lead": {
+          "name": "lead",
+          "type": "varchar(220)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "canal": {
+          "name": "canal",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "bdr": {
+          "name": "bdr",
+          "type": "varchar(160)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "closer": {
+          "name": "closer",
+          "type": "varchar(160)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "reuniao_qualificada": {
+          "name": "reuniao_qualificada",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Nao'"
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "produto": {
+          "name": "produto",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "primeiro_mrr": {
+          "name": "primeiro_mrr",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "valor_unico": {
+          "name": "valor_unico",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "pagamento": {
+          "name": "pagamento",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "primeiro_pagamento_confirmado": {
+          "name": "primeiro_pagamento_confirmado",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "contrato_ativado": {
+          "name": "contrato_ativado",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "comissao_status": {
+          "name": "comissao_status",
+          "type": "commission_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Pendente'"
+        },
+        "pendencia_motivo": {
+          "name": "pendencia_motivo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.expansions": {
+      "name": "expansions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(64)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cliente_id": {
+          "name": "cliente_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "projeto_id": {
+          "name": "projeto_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lider": {
+          "name": "lider",
+          "type": "varchar(160)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "participantes": {
+          "name": "participantes",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "valor_mrr": {
+          "name": "valor_mrr",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "valor_unico": {
+          "name": "valor_unico",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "lt_meses": {
+          "name": "lt_meses",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "previsao_fechamento": {
+          "name": "previsao_fechamento",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "etapa": {
+          "name": "etapa",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "status": {
+          "name": "status",
+          "type": "expansion_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Aberta'"
+        },
+        "observacoes": {
+          "name": "observacoes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "expansions_cliente_id_clients_id_fk": {
+          "name": "expansions_cliente_id_clients_id_fk",
+          "tableFrom": "expansions",
+          "tableTo": "clients",
+          "columnsFrom": [
+            "cliente_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "expansions_projeto_id_client_projects_id_fk": {
+          "name": "expansions_projeto_id_client_projects_id_fk",
+          "tableFrom": "expansions",
+          "tableTo": "client_projects",
+          "columnsFrom": [
+            "projeto_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.roles": {
+      "name": "roles",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(64)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "ativo": {
+          "name": "ativo",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "roles_nome_idx": {
+          "name": "roles_nome_idx",
+          "columns": [
+            {
+              "expression": "nome",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.squads": {
+      "name": "squads",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(64)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "varchar(140)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "coordenador": {
+          "name": "coordenador",
+          "type": "varchar(160)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "account": {
+          "name": "account",
+          "type": "varchar(160)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "membros": {
+          "name": "membros",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "status": {
+          "name": "status",
+          "type": "member_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Ativo'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.team_members": {
+      "name": "team_members",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(64)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "varchar(160)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "funcao": {
+          "name": "funcao",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "custo_fixo": {
+          "name": "custo_fixo",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "data_contratacao": {
+          "name": "data_contratacao",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "percentual_projeto": {
+          "name": "percentual_projeto",
+          "type": "numeric(8, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "usar_fixo_ou_variavel": {
+          "name": "usar_fixo_ou_variavel",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "socio": {
+          "name": "socio",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "status": {
+          "name": "status",
+          "type": "member_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Ativo'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.app_user_status": {
+      "name": "app_user_status",
+      "schema": "public",
+      "values": [
+        "Ativo",
+        "Inativo"
+      ]
+    },
+    "public.client_status": {
+      "name": "client_status",
+      "schema": "public",
+      "values": [
+        "Ativo",
+        "Pausado",
+        "Inativo"
+      ]
+    },
+    "public.commission_status": {
+      "name": "commission_status",
+      "schema": "public",
+      "values": [
+        "Pendente",
+        "Liberada",
+        "Bloqueada"
+      ]
+    },
+    "public.expansion_status": {
+      "name": "expansion_status",
+      "schema": "public",
+      "values": [
+        "Aberta",
+        "Ganha",
+        "Perdida",
+        "Pausada"
+      ]
+    },
+    "public.member_status": {
+      "name": "member_status",
+      "schema": "public",
+      "values": [
+        "Ativo",
+        "Pausado",
+        "Inativo"
+      ]
+    },
+    "public.project_engagement": {
+      "name": "project_engagement",
+      "schema": "public",
+      "values": [
+        "Engajado",
+        "Neutro",
+        "Desengajado"
+      ]
+    },
+    "public.project_health": {
+      "name": "project_health",
+      "schema": "public",
+      "values": [
+        "Saudavel",
+        "Alerta",
+        "Perigo"
+      ]
+    },
+    "public.project_status": {
+      "name": "project_status",
+      "schema": "public",
+      "values": [
+        "Ativo",
+        "Pausado",
+        "Inativo",
+        "Entregue"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

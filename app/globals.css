@@ -2567,6 +2567,149 @@ td:last-child .row-actions {
   background: #f4f5f7;
 }
 
+.login-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(237, 28, 36, 0.24), transparent 34%),
+    linear-gradient(180deg, #181818 0%, #0f0f10 100%);
+}
+
+.login-card {
+  width: min(440px, 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+  padding: 24px;
+  display: grid;
+  gap: 14px;
+}
+
+.login-logo {
+  width: 172px;
+  max-width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  background: #111;
+}
+
+.login-card h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.login-card label,
+.access-form label {
+  display: grid;
+  gap: 6px;
+  font-weight: 800;
+}
+
+.login-card input,
+.access-form input,
+.access-form select {
+  min-width: 0;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  padding: 10px 12px;
+}
+
+.form-error {
+  margin: 0;
+  color: var(--red);
+  font-weight: 800;
+}
+
+.sidebar-user {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  padding: 10px;
+  display: grid;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.sidebar-user span,
+.sidebar-user small {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.sidebar-user strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-user button {
+  margin-top: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  padding: 7px 9px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.access-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.access-form {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  padding: 14px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.permission-grid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.compact-check {
+  display: flex !important;
+  align-items: center;
+  grid-template-columns: none !important;
+  gap: 8px !important;
+  min-height: 42px;
+}
+
+.compact-check input {
+  width: auto;
+}
+
+.access-form .form-actions {
+  grid-column: 1 / -1;
+}
+
+.role-pill {
+  display: inline-grid;
+  place-items: center;
+  margin-left: 8px;
+  border-radius: 999px;
+  background: var(--red-soft);
+  color: var(--red);
+  padding: 3px 7px;
+  font-size: 11px;
+  font-weight: 900;
+}
+
 @media (max-width: 1100px) {
   .shell {
     grid-template-columns: 1fr;
@@ -2651,7 +2794,9 @@ td:last-child .row-actions {
   }
 
   .advanced-goals-grid,
-  .rules-grid {
+  .rules-grid,
+  .access-form,
+  .permission-grid {
     grid-template-columns: 1fr;
   }
 }

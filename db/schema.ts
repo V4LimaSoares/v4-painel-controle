@@ -7,6 +7,7 @@ export const projectHealthEnum = pgEnum("project_health", ["Saudavel", "Alerta",
 export const projectEngagementEnum = pgEnum("project_engagement", ["Engajado", "Neutro", "Desengajado"]);
 export const expansionStatusEnum = pgEnum("expansion_status", ["Aberta", "Ganha", "Perdida", "Pausada"]);
 export const commissionStatusEnum = pgEnum("commission_status", ["Pendente", "Liberada", "Bloqueada"]);
+export const appUserStatusEnum = pgEnum("app_user_status", ["Ativo", "Inativo"]);
 
 const timestamps = {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -173,3 +174,19 @@ export const commercialPolicy = pgTable("commercial_policy", {
   paymentDay: integer("payment_day").default(10).notNull(),
   ...timestamps,
 });
+
+export const appUsers = pgTable(
+  "app_users",
+  {
+    id: varchar("id", { length: 64 }).primaryKey(),
+    email: varchar("email", { length: 180 }).notNull(),
+    nome: varchar("nome", { length: 160 }).default("").notNull(),
+    allowedTabs: jsonb("allowed_tabs").$type<string[]>().default([]).notNull(),
+    isAdmin: boolean("is_admin").default(false).notNull(),
+    status: appUserStatusEnum("status").default("Ativo").notNull(),
+    ...timestamps,
+  },
+  (table) => ({
+    emailIdx: uniqueIndex("app_users_email_idx").on(table.email),
+  }),
+);
