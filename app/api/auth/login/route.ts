@@ -9,8 +9,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Use um e-mail @v4company.com para acessar." }, { status: 403 });
   }
 
-  const expectedPassword = process.env.LOGIN_PASSWORD || process.env.LOGIN_ACCESS_KEY || "";
-  if (expectedPassword && (password || accessCode) !== expectedPassword) {
+  const expectedPassword = (process.env.LOGIN_PASSWORD || process.env.LOGIN_ACCESS_KEY || "").trim();
+  const informedPassword = (password ?? accessCode ?? "").trim();
+  if (expectedPassword && informedPassword !== expectedPassword) {
     return NextResponse.json({ ok: false, error: "Senha invalida." }, { status: 401 });
   }
 
